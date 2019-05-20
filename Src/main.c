@@ -20,6 +20,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "ax12a.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,7 +55,28 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
+int move(unsigned char ID, int Position) {
+    char Position_H,Position_L;
+    Position_H = Position >> 8;           // 16 bits - 2 x 8 bits variables
+    Position_L = Position;
 
+    const unsigned int length = 9;
+    unsigned char packet[length];
+
+    unsigned char Checksum = (~(ID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H)) & 0xFF;
+
+    packet[0] = AX_START;
+    packet[1] = AX_START;
+    packet[2] = ID;
+    packet[3] = AX_GOAL_LENGTH;
+    packet[4] = AX_WRITE_DATA;
+    packet[5] = AX_GOAL_POSITION_L;
+    packet[6] = Position_L;
+    packet[7] = Position_H;
+    packet[8] = Checksum;
+
+    return HAL_UART_Transmit_IT(&huart3, packet, sizeof(packet));
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -102,8 +125,10 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    HAL_Delay(300);
-    HAL_UART_Transmit_IT(&huart3, trasmit_buf, sizeof(trasmit_buf));
+    HAL_Delay(1000);
+    move(16, 90);
+    HAL_Delay(1000);
+    move(16, 180);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
