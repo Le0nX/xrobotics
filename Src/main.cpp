@@ -298,11 +298,12 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
       move(16, 90);
-      action();
       osDelay(1000);
       move(16, 180);
-      action();
       osDelay(1000);
+      move(245, 180);
+      osDelay(500);
+      move(245,30);
   }
   /* USER CODE END 5 */ 
 }
