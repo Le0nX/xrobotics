@@ -74,9 +74,9 @@ void HAL_MspInit(void)
   /* PendSV_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
-  /** NOJTAG: JTAG-DP Disabled and SW-DP Enabled 
+  /** NONJTRST: Full SWJ (JTAG-DP + SW-DP) but without NJTRST 
   */
-  __HAL_AFIO_REMAP_SWJ_NOJTAG();
+  __HAL_AFIO_REMAP_SWJ_NONJTRST();
 
   /* USER CODE BEGIN MspInit 1 */
 
