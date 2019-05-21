@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-FREERTOS.HEAP_NUMBER=5
+FREERTOS.HEAP_NUMBER=4
 FREERTOS.IPParameters=Tasks01,HEAP_NUMBER,configTOTAL_HEAP_SIZE
 FREERTOS.Tasks01=defaultTask,0,128,StartDefaultTask,Default,NULL
 FREERTOS.configTOTAL_HEAP_SIZE=10000
