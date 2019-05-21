@@ -54,6 +54,12 @@ unsigned char packet[9];
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
+}
+
 /* USER CODE BEGIN PFP */
 int move(unsigned char ID, int Position) {
     char Position_H,Position_L;
@@ -130,7 +136,13 @@ int main(void)
   MX_GPIO_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Pin = GPIO_PIN_14;
+    GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
 
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -194,6 +206,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
+static void MX_USART3_UART_Init(void);
 static void MX_USART3_UART_Init(void)
 {
 
