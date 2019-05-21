@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ax12a.h"
+#include "instances.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,7 +80,7 @@ int move(unsigned char ID, int Position) {
     packet[7] = Position_H;
     packet[8] = Checksum;
 
-    return HAL_UART_Transmit_IT(&huart3, packet, sizeof(packet));
+    return uart_servo.send(packet, sizeof(packet), 100);
 }
 
 unsigned char action_packet[6];
@@ -95,7 +96,7 @@ void action()
     action_packet[4] = AX_ACTION;
     action_packet[5] = AX_ACTION_CHECKSUM;
 
-    HAL_UART_Transmit_IT(&huart3, action_packet, length);
+    uart_servo.send(action_packet, length, 100);
 }
 /* USER CODE END PFP */
 
@@ -136,6 +137,7 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  uart_servo.init();
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -258,10 +260,22 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(DE_PIN_GPIO_Port, DE_PIN_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : DE_PIN_Pin */
+  GPIO_InitStruct.Pin = DE_PIN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(DE_PIN_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -283,7 +297,12 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+      move(16, 90);
+      action();
+      osDelay(1000);
+      move(16, 180);
+      action();
+      osDelay(1000);
   }
   /* USER CODE END 5 */ 
 }

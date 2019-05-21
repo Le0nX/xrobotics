@@ -8,7 +8,6 @@
 #include "main.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include ""
 
 class UartDriver{
 public:
@@ -23,10 +22,7 @@ private:
     UART_HandleTypeDef &huart_;
     GPIO_TypeDef *dePin_;
     uint16_t dePinNum_;
-
 };
-
-
 
 
 #endif //STM32F103_EXPL_UART_DRIVER_H
