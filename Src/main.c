@@ -49,7 +49,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
-
+unsigned char packet[9];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -61,7 +61,6 @@ int move(unsigned char ID, int Position) {
     Position_L = Position;
 
     const unsigned int length = 9;
-    unsigned char packet[length];
 
     unsigned char Checksum = (~(ID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H)) & 0xFF;
 
@@ -76,6 +75,22 @@ int move(unsigned char ID, int Position) {
     packet[8] = Checksum;
 
     return HAL_UART_Transmit_IT(&huart3, packet, sizeof(packet));
+}
+
+unsigned char action_packet[6];
+void action()
+{
+    const unsigned int length = 6;
+
+
+    action_packet[0] = AX_START;
+    action_packet[1] = AX_START;
+    action_packet[2] = BROADCAST_ID;
+    action_packet[3] = AX_ACTION_LENGTH;
+    action_packet[4] = AX_ACTION;
+    action_packet[5] = AX_ACTION_CHECKSUM;
+
+    HAL_UART_Transmit_IT(&huart3, action_packet, length);
 }
 /* USER CODE END PFP */
 
@@ -121,14 +136,17 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  uint8_t trasmit_buf[5] = {0xAA, 0x55, 0xAA, 0x55, 0xAA};
+    //uint8_t trasmit_buf[9] = {0xFF, 0xFF, 0x10, 0x05, 0x3, 0x1E, 0xB4, 0x0,0x15};
   while (1)
   {
     /* USER CODE END WHILE */
     HAL_Delay(1000);
     move(16, 90);
     HAL_Delay(1000);
+    action();
+    HAL_Delay(1000);
     move(16, 180);
+      //HAL_UART_Transmit_IT(&huart3, trasmit_buf, sizeof(trasmit_buf));
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -194,7 +212,7 @@ static void MX_USART3_UART_Init(void)
   huart3.Init.Mode = UART_MODE_TX_RX;
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
+  if (HAL_HalfDuplex_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
